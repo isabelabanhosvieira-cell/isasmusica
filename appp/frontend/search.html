@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesquisar - App de Música</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-music"></i>
+        <span>MusicApp</span>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="index.html" class="sidebar-nav-link">
+              <i class="fas fa-home"></i>
+              <span>Início</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="search.html" class="sidebar-nav-link active">
+              <i class="fas fa-search"></i>
+              <span>Pesquisar</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="library.html" class="sidebar-nav-link">
+              <i class="fas fa-book"></i>
+              <span>Sua Biblioteca</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="podcasts.html" class="sidebar-nav-link">
+              <i class="fas fa-podcast"></i>
+              <span>Podcasts</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="profile.html" class="sidebar-nav-link profile-link" style="display: none;">
+              <i class="fas fa-user"></i>
+              <span>Perfil</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <div>
+          <button class="btn-icon menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="header-title">Pesquisar</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon theme-toggle">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Barra de Pesquisa -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="O que você quer ouvir?" id="searchInput">
+        </div>
+
+        <!-- Filtros -->
+        <div class="search-filters">
+          <button class="filter-chip active" data-filter="all">Tudo</button>
+          <button class="filter-chip" data-filter="songs">Músicas</button>
+          <button class="filter-chip" data-filter="albums">Álbuns</button>
+          <button class="filter-chip" data-filter="artists">Artistas</button>
+          <button class="filter-chip" data-filter="playlists">Playlists</button>
+          <button class="filter-chip" data-filter="podcasts">Podcasts</button>
+        </div>
+      </div>
+
+      <!-- Resultados -->
+      <div class="search-results" id="searchResults">
+        <!-- Resultados serão inseridos aqui dinamicamente -->
+        <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+          <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p>Digite algo para pesquisar</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Music Player -->
+  <div class="music-player">
+    <div class="player-track-info">
+      <img src="https://via.placeholder.com/56" alt="Track" class="player-track-image">
+      <div class="player-track-details">
+        <div class="player-track-name">Nenhuma música tocando</div>
+        <div class="player-track-artist">Selecione uma música</div>
+      </div>
+    </div>
+    <div class="player-controls">
+      <div class="player-buttons">
+        <button class="player-button shuffle" title="Embaralhar">
+          <i class="fas fa-random"></i>
+        </button>
+        <button class="player-button prev" title="Anterior">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button class="player-button play-pause" title="Reproduzir">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="player-button next" title="Próxima">
+          <i class="fas fa-step-forward"></i>
+        </button>
+        <button class="player-button repeat" title="Repetir">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+      <div class="player-progress">
+        <span class="progress-time current-time">0:00</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-handle"></div>
+        </div>
+        <span class="progress-time duration">0:00</span>
+      </div>
+    </div>
+    <div class="player-actions">
+      <button class="player-button lyrics" title="Letras">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button class="player-button like" title="Curtir">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="player-button volume" title="Volume">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/player.js"></script>
+  <script>
+    // Inicializar busca
+    initializeSearch();
+    
+    // Busca em tempo real
+    const searchInput = document.getElementById('searchInput');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+      
+      if (query.length >= 2) {
+        searchTimeout = setTimeout(() => {
+          performSearch(query);
+        }, 300);
+      } else {
+        clearSearchResults();
+        document.getElementById('searchResults').innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Digite algo para pesquisar</p>
+          </div>
+        `;
+      }
+    });
+    
+    // Filtros
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const query = searchInput.value.trim();
+        if (query.length >= 2) {
+          performSearch(query, chip.dataset.filter);
+        }
+      });
+    });
+    
+    async function performSearch(query, filter = 'all') {
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i></div>';
+      
+      try {
+        const results = await api.search(query, filter);
+        displaySearchResults(results);
+      } catch (error) {
+        console.error('Erro na busca:', error);
+        resultsContainer.innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Erro ao realizar busca. Tente novamente.</p>
+          </div>
+        `;
+      }
+    }
+    
+    function displaySearchResults(results) {
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = '';
+      
+      if (!results || (Object.keys(results).length === 0)) {
+        resultsContainer.innerHTML = `
+          <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+            <p>Nenhum resultado encontrado</p>
+          </div>
+        `;
+        return;
+      }
+      
+      if (results.songs && results.songs.length > 0) {
+        const section = createResultsSection('Músicas', results.songs, 'song');
+        resultsContainer.appendChild(section);
+      }
+      
+      if (results.albums && results.albums.length > 0) {
+        const section = createResultsSection('Álbuns', results.albums, 'album');
+        resultsContainer.appendChild(section);
+      }
+      
+      if (results.artists && results.artists.length > 0) {
+        const section = createResultsSection('Artistas', results.artists, 'artist');
+        resultsContainer.appendChild(section);
+      }
+      
+      if (results.playlists && results.playlists.length > 0) {
+        const section = createResultsSection('Playlists', results.playlists, 'playlist');
+        resultsContainer.appendChild(section);
+      }
+      
+      if (results.podcasts && results.podcasts.length > 0) {
+        const section = createResultsSection('Podcasts', results.podcasts, 'podcast');
+        resultsContainer.appendChild(section);
+      }
+    }
+    
+    function createResultsSection(title, items, type) {
+      const section = document.createElement('div');
+      section.className = 'results-section';
+      section.style.marginBottom = '2rem';
+      
+      const sectionTitle = document.createElement('h3');
+      sectionTitle.textContent = title;
+      sectionTitle.style.marginBottom = '1rem';
+      sectionTitle.style.fontSize = '1.5rem';
+      sectionTitle.style.fontWeight = 'bold';
+      section.appendChild(sectionTitle);
+      
+      const grid = document.createElement('div');
+      grid.className = 'music-grid';
+      
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => {
+          if (type === 'song') {
+            playSong(item);
+          } else if (type === 'album') {
+            window.location.href = `album.html?id=${item._id || item.id}`;
+          } else if (type === 'artist') {
+            window.location.href = `artist.html?id=${item._id || item.id}`;
+          } else if (type === 'playlist') {
+            window.location.href = `library.html?playlist=${item._id || item.id}`;
+          } else if (type === 'podcast') {
+            window.location.href = `podcasts.html?id=${item._id || item.id}`;
+          }
+        };
+        
+        card.innerHTML = `
+          <img src="${item.image || 'https://via.placeholder.com/300'}" alt="${item.name}" class="card-image" loading="lazy">
+          <div class="card-title">${item.name || item.title}</div>
+          <div class="card-subtitle">${item.artist || item.artistName || item.description || ''}</div>
+        `;
+        
+        grid.appendChild(card);
+      });
+      
+      section.appendChild(grid);
+      return section;
+    }
+    
+    function clearSearchResults() {
+      // Implementado em main.js
+    }
+  </script>
+</body>
+</html>
+
