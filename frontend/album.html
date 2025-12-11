@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Álbum - App de Música</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .album-header {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .album-cover {
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 1;
+      border-radius: var(--border-radius-lg);
+      object-fit: cover;
+      box-shadow: var(--shadow-hover);
+    }
+    
+    .album-info {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .album-type {
+      text-transform: uppercase;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    
+    .album-title {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+    
+    .album-artist {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    .album-meta {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .album-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .songs-list {
+      margin-top: 2rem;
+    }
+    
+    .song-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+    
+    .song-item:hover {
+      background-color: var(--bg-tertiary);
+    }
+    
+    .song-number {
+      width: 30px;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+    
+    .song-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .song-name {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+    
+    .song-artist {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .song-duration {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-music"></i>
+        <span>MusicApp</span>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="index.html" class="sidebar-nav-link">
+              <i class="fas fa-home"></i>
+              <span>Início</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="search.html" class="sidebar-nav-link">
+              <i class="fas fa-search"></i>
+              <span>Pesquisar</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="library.html" class="sidebar-nav-link">
+              <i class="fas fa-book"></i>
+              <span>Sua Biblioteca</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div id="albumContent">
+        <div style="text-align: center; padding: 3rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Music Player -->
+  <div class="music-player">
+    <div class="player-track-info">
+      <img src="https://via.placeholder.com/56" alt="Track" class="player-track-image">
+      <div class="player-track-details">
+        <div class="player-track-name">Nenhuma música tocando</div>
+        <div class="player-track-artist">Selecione uma música</div>
+      </div>
+    </div>
+    <div class="player-controls">
+      <div class="player-buttons">
+        <button class="player-button shuffle" title="Embaralhar">
+          <i class="fas fa-random"></i>
+        </button>
+        <button class="player-button prev" title="Anterior">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button class="player-button play-pause" title="Reproduzir">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="player-button next" title="Próxima">
+          <i class="fas fa-step-forward"></i>
+        </button>
+        <button class="player-button repeat" title="Repetir">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+      <div class="player-progress">
+        <span class="progress-time current-time">0:00</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-handle"></div>
+        </div>
+        <span class="progress-time duration">0:00</span>
+      </div>
+    </div>
+    <div class="player-actions">
+      <button class="player-button lyrics" title="Letras">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button class="player-button like" title="Curtir">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="player-button volume" title="Volume">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/player.js"></script>
+  <script>
+    // Carregar álbum
+    async function loadAlbum() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const albumId = urlParams.get('id');
+      
+      if (!albumId) {
+        document.getElementById('albumContent').innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <p>Álbum não encontrado</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top: 1rem;">Voltar</a>
+          </div>
+        `;
+        return;
+      }
+      
+      try {
+        const album = await api.getAlbum(albumId);
+        const songs = await api.getAlbumSongs(albumId);
+        
+        displayAlbum(album, songs);
+      } catch (error) {
+        console.error('Erro ao carregar álbum:', error);
+        document.getElementById('albumContent').innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <p>Erro ao carregar álbum</p>
+            <a href="index.html" class="btn btn-primary" style="margin-top: 1rem;">Voltar</a>
+          </div>
+        `;
+      }
+    }
+    
+    function displayAlbum(album, songs) {
+      const content = document.getElementById('albumContent');
+      
+      const songsList = songs.map((song, index) => `
+        <div class="song-item" onclick="playSong(${JSON.stringify(song).replace(/"/g, '&quot;')}, ${JSON.stringify(songs).replace(/"/g, '&quot;')})">
+          <div class="song-number">${index + 1}</div>
+          <div class="song-info">
+            <div class="song-name">${song.name || song.title}</div>
+            <div class="song-artist">${song.artist || song.artistName || album.artist}</div>
+          </div>
+          <div class="song-duration">${formatTime(song.duration || 0)}</div>
+        </div>
+      `).join('');
+      
+      content.innerHTML = `
+        <div class="album-header">
+          <img src="${album.image || 'https://via.placeholder.com/300'}" alt="${album.name}" class="album-cover">
+          <div class="album-info">
+            <div class="album-type">Álbum</div>
+            <h1 class="album-title">${album.name || album.title}</h1>
+            <div class="album-artist">${album.artist || album.artistName}</div>
+            <div class="album-meta">
+              ${album.year || ''} • ${songs.length} músicas
+            </div>
+            <div class="album-actions">
+              <button class="btn btn-primary" onclick="playAlbum(${JSON.stringify(songs).replace(/"/g, '&quot;')})">
+                <i class="fas fa-play"></i> Reproduzir
+              </button>
+              <button class="btn btn-icon" onclick="likeAlbum('${album._id || album.id}')">
+                <i class="far fa-heart"></i>
+              </button>
+              <button class="btn btn-icon" onclick="addAlbumToLibrary('${album._id || album.id}')">
+                <i class="far fa-plus-square"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="songs-list">
+          ${songsList}
+        </div>
+      `;
+    }
+    
+    async function playAlbum(songs) {
+      if (songs && songs.length > 0) {
+        await playSong(songs[0], songs);
+      }
+    }
+    
+    async function likeAlbum(albumId) {
+      try {
+        await api.addToLibrary('album', albumId);
+        showNotification('Álbum adicionado aos favoritos', 'success');
+      } catch (error) {
+        showNotification('Erro ao curtir álbum', 'error');
+      }
+    }
+    
+    async function addAlbumToLibrary(albumId) {
+      try {
+        await api.addToLibrary('album', albumId);
+        showNotification('Álbum adicionado à biblioteca', 'success');
+      } catch (error) {
+        showNotification('Erro ao adicionar álbum', 'error');
+      }
+    }
+    
+    // Carregar quando a página estiver pronta
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadAlbum);
+    } else {
+      loadAlbum();
+    }
+  </script>
+</body>
+</html>
+

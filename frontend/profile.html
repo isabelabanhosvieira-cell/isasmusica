@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - App de Música</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .profile-avatar {
+      width: 150px;
+      height: 150px;
+      border-radius: var(--border-radius-round);
+      object-fit: cover;
+      border: 4px solid var(--accent-primary);
+    }
+    
+    .profile-info {
+      flex: 1;
+    }
+    
+    .profile-name {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-email {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    
+    .profile-stats {
+      display: flex;
+      gap: 2rem;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--accent-primary);
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .profile-sections {
+      margin-top: 2rem;
+    }
+    
+    .section-card {
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin-bottom: var(--spacing-md);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-music"></i>
+        <span>MusicApp</span>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="index.html" class="sidebar-nav-link">
+              <i class="fas fa-home"></i>
+              <span>Início</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="search.html" class="sidebar-nav-link">
+              <i class="fas fa-search"></i>
+              <span>Pesquisar</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="library.html" class="sidebar-nav-link">
+              <i class="fas fa-book"></i>
+              <span>Sua Biblioteca</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="profile.html" class="sidebar-nav-link active">
+              <i class="fas fa-user"></i>
+              <span>Perfil</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div>
+          <button class="btn-icon menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="header-title">Perfil</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon theme-toggle">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <div id="profileContent">
+        <div style="text-align: center; padding: 3rem;">
+          <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Music Player -->
+  <div class="music-player">
+    <div class="player-track-info">
+      <img src="https://via.placeholder.com/56" alt="Track" class="player-track-image">
+      <div class="player-track-details">
+        <div class="player-track-name">Nenhuma música tocando</div>
+        <div class="player-track-artist">Selecione uma música</div>
+      </div>
+    </div>
+    <div class="player-controls">
+      <div class="player-buttons">
+        <button class="player-button shuffle" title="Embaralhar">
+          <i class="fas fa-random"></i>
+        </button>
+        <button class="player-button prev" title="Anterior">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button class="player-button play-pause" title="Reproduzir">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="player-button next" title="Próxima">
+          <i class="fas fa-step-forward"></i>
+        </button>
+        <button class="player-button repeat" title="Repetir">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+      <div class="player-progress">
+        <span class="progress-time current-time">0:00</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-handle"></div>
+        </div>
+        <span class="progress-time duration">0:00</span>
+      </div>
+    </div>
+    <div class="player-actions">
+      <button class="player-button lyrics" title="Letras">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button class="player-button like" title="Curtir">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="player-button volume" title="Volume">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/player.js"></script>
+  <script>
+    async function loadProfile() {
+      try {
+        const user = await api.getCurrentUser();
+        const library = await api.getLibrary();
+        
+        displayProfile(user, library);
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+        document.getElementById('profileContent').innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <p>Erro ao carregar perfil</p>
+            <a href="login.html" class="btn btn-primary" style="margin-top: 1rem;">Fazer Login</a>
+          </div>
+        `;
+      }
+    }
+    
+    function displayProfile(user, library) {
+      const content = document.getElementById('profileContent');
+      
+      const stats = {
+        playlists: library.playlists?.length || 0,
+        songs: library.songs?.length || 0,
+        albums: library.albums?.length || 0
+      };
+      
+      content.innerHTML = `
+        <div class="profile-header">
+          <img src="${user.avatar || 'https://via.placeholder.com/150'}" alt="${user.name}" class="profile-avatar">
+          <div class="profile-info">
+            <h1 class="profile-name">${user.name || 'Usuário'}</h1>
+            <p class="profile-email">${user.email || ''}</p>
+            <div class="profile-stats">
+              <div class="stat-item">
+                <div class="stat-value">${stats.playlists}</div>
+                <div class="stat-label">Playlists</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">${stats.songs}</div>
+                <div class="stat-label">Músicas</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">${stats.albums}</div>
+                <div class="stat-label">Álbuns</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="profile-sections">
+          <div class="section-card">
+            <h2 class="section-title">Configurações</h2>
+            <div class="form-group">
+              <label class="form-label">Notificações</label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" checked>
+                <span>Receber notificações de novas músicas</span>
+              </label>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Privacidade</label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox">
+                <span>Perfil público</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="section-card">
+            <h2 class="section-title">Conta</h2>
+            <button class="btn btn-secondary" style="margin-bottom: 1rem; width: 100%;">
+              Editar Perfil
+            </button>
+            <button class="btn btn-secondary" style="margin-bottom: 1rem; width: 100%;">
+              Alterar Senha
+            </button>
+            <button class="btn btn-secondary" onclick="logout()" style="width: 100%;">
+              <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+    
+    // Carregar perfil
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadProfile);
+    } else {
+      loadProfile();
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Podcasts - App de Música</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <i class="fas fa-music"></i>
+        <span>MusicApp</span>
+      </div>
+      <nav>
+        <ul class="sidebar-nav">
+          <li class="sidebar-nav-item">
+            <a href="index.html" class="sidebar-nav-link">
+              <i class="fas fa-home"></i>
+              <span>Início</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="search.html" class="sidebar-nav-link">
+              <i class="fas fa-search"></i>
+              <span>Pesquisar</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="library.html" class="sidebar-nav-link">
+              <i class="fas fa-book"></i>
+              <span>Sua Biblioteca</span>
+            </a>
+          </li>
+          <li class="sidebar-nav-item">
+            <a href="podcasts.html" class="sidebar-nav-link active">
+              <i class="fas fa-podcast"></i>
+              <span>Podcasts</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <div>
+          <button class="btn-icon menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="header-title">Podcasts</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon theme-toggle">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Filtros de Categoria -->
+      <div class="search-filters" style="margin-bottom: 2rem;">
+        <button class="filter-chip active" data-category="all">Todos</button>
+        <button class="filter-chip" data-category="technology">Tecnologia</button>
+        <button class="filter-chip" data-category="entertainment">Entretenimento</button>
+        <button class="filter-chip" data-category="history">História</button>
+        <button class="filter-chip" data-category="music">Música</button>
+        <button class="filter-chip" data-category="business">Negócios</button>
+      </div>
+
+      <!-- Podcasts Populares -->
+      <section class="carousel">
+        <div class="carousel-header">
+          <h2 class="carousel-title">Podcasts Populares</h2>
+        </div>
+        <div class="carousel-container" id="popularPodcasts">
+          <!-- Carregado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Seus Podcasts -->
+      <section class="carousel">
+        <div class="carousel-header">
+          <h2 class="carousel-title">Seus Podcasts</h2>
+        </div>
+        <div class="carousel-container" id="yourPodcasts">
+          <!-- Carregado dinamicamente -->
+        </div>
+      </section>
+
+      <!-- Por Categoria -->
+      <section class="carousel">
+        <div class="carousel-header">
+          <h2 class="carousel-title">Tecnologia</h2>
+        </div>
+        <div class="carousel-container" id="techPodcasts">
+          <!-- Carregado dinamicamente -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Music Player -->
+  <div class="music-player">
+    <div class="player-track-info">
+      <img src="https://via.placeholder.com/56" alt="Track" class="player-track-image">
+      <div class="player-track-details">
+        <div class="player-track-name">Nenhuma música tocando</div>
+        <div class="player-track-artist">Selecione uma música</div>
+      </div>
+    </div>
+    <div class="player-controls">
+      <div class="player-buttons">
+        <button class="player-button shuffle" title="Embaralhar">
+          <i class="fas fa-random"></i>
+        </button>
+        <button class="player-button prev" title="Anterior">
+          <i class="fas fa-step-backward"></i>
+        </button>
+        <button class="player-button play-pause" title="Reproduzir">
+          <i class="fas fa-play"></i>
+        </button>
+        <button class="player-button next" title="Próxima">
+          <i class="fas fa-step-forward"></i>
+        </button>
+        <button class="player-button repeat" title="Repetir">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+      <div class="player-progress">
+        <span class="progress-time current-time">0:00</span>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+          <div class="progress-handle"></div>
+        </div>
+        <span class="progress-time duration">0:00</span>
+      </div>
+    </div>
+    <div class="player-actions">
+      <button class="player-button lyrics" title="Letras">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <button class="player-button like" title="Curtir">
+        <i class="far fa-heart"></i>
+      </button>
+      <button class="player-button volume" title="Volume">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/player.js"></script>
+  <script>
+    // Carregar podcasts
+    async function loadPodcasts() {
+      try {
+        const podcasts = await api.getPodcasts(1, 20);
+        displayPodcasts(podcasts.podcasts || podcasts, 'popularPodcasts');
+        
+        // Carregar podcasts seguidos
+        const library = await api.getLibrary();
+        if (library.podcasts) {
+          displayPodcasts(library.podcasts, 'yourPodcasts');
+        }
+      } catch (error) {
+        console.error('Erro ao carregar podcasts:', error);
+        loadExamplePodcasts();
+      }
+    }
+    
+    function displayPodcasts(podcasts, containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      if (podcasts.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary);">Nenhum podcast encontrado</p>';
+        return;
+      }
+      
+      container.innerHTML = podcasts.map(podcast => `
+        <div class="card" onclick="viewPodcast('${podcast._id || podcast.id}')">
+          <img src="${podcast.image || 'https://via.placeholder.com/300'}" alt="${podcast.name}" class="card-image" loading="lazy">
+          <div class="card-title">${podcast.name || podcast.title}</div>
+          <div class="card-subtitle">${podcast.creator || podcast.author || ''}</div>
+        </div>
+      `).join('');
+    }
+    
+    function viewPodcast(podcastId) {
+      window.location.href = `podcast-detail.html?id=${podcastId}`;
+    }
+    
+    // Filtros
+    document.querySelectorAll('.filter-chip[data-category]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip[data-category]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const category = chip.dataset.category;
+        filterPodcastsByCategory(category);
+      });
+    });
+    
+    function filterPodcastsByCategory(category) {
+      // Implementar filtro por categoria
+      loadPodcasts();
+    }
+    
+    function loadExamplePodcasts() {
+      const examplePodcasts = [
+        { id: 1, name: 'Podcast 1', creator: 'Criador 1', image: 'https://via.placeholder.com/300' },
+        { id: 2, name: 'Podcast 2', creator: 'Criador 2', image: 'https://via.placeholder.com/300' },
+        { id: 3, name: 'Podcast 3', creator: 'Criador 3', image: 'https://via.placeholder.com/300' }
+      ];
+      displayPodcasts(examplePodcasts, 'popularPodcasts');
+    }
+    
+    // Inicializar
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadPodcasts);
+    } else {
+      loadPodcasts();
+    }
+  </script>
+</body>
+</html>
+
